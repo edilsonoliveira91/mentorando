@@ -1,7 +1,20 @@
+import os, sys
 from pathlib import Path
+from django.contrib.messages import constants
+
+#Material de apoio
+#https://grizzly-amaranthus-f6a.notion.site/Aula-1-1c16cf8ea89f80d1989dd93f8197e254
+
+#Figma
+#https://www.figma.com/design/tllXvwhJpvAdnrvDzVjQpA/Untitled?node-id=0-1&p=f
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+PROJECT_ROOT = os.path.dirname(__file__)
+sys.path.insert(0, os.path.join(PROJECT_ROOT, '../apps'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -25,6 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    #My apps
+    'usuarios',
 ]
 
 MIDDLEWARE = [
@@ -42,7 +58,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -98,13 +114,20 @@ USE_I18N = True
 
 USE_TZ = True
 
+STATIC_URL = '/static/'
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'templates/static'),)
+STATIC_ROOT = os.path.join('static')
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
-STATIC_URL = 'static/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+#Messages
+MESSAGE_TAGS = {
+    constants.SUCCESS: 'bg-green-50 text-green-700',
+    constants.ERROR: 'bg-red-50 text-red-700'
+}
