@@ -12,7 +12,20 @@ def mentorados(request):
   if request.method == 'GET':
     navigators = Navigators.objects.filter(user=request.user)
     mentorados = Mentorados.objects.filter(user=request.user)
-    return render(request, 'mentorados.html', {'estagios': Mentorados.estagio_choices, 'navigators': navigators, 'mentorados': mentorados})
+
+    estagios_flat = []
+    for i in Mentorados.estagio_choices:
+      estagios_flat.append(i[1])
+    qtd_estagios = []
+    for i, j in Mentorados.estagio_choices:
+      quantidade = Mentorados.objects.filter(estagio=i).filter(user=request.user).count()
+      qtd_estagios.append(quantidade)
+    print(estagios_flat)
+    print(qtd_estagios)
+
+
+
+    return render(request, 'mentorados.html', {'estagios': Mentorados.estagio_choices, 'navigators': navigators, 'mentorados': mentorados, 'estagios_flat': estagios_flat, 'qtd_estagios': qtd_estagios})
   
   elif request.method == 'POST':
     nome = request.POST.get('nome')
