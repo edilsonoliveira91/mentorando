@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, Http404
-from .models import Mentorados, Navigators
+from .models import Mentorados, Navigators, DisponibilidadedeHorarios
 from django.contrib import messages
 from django.contrib.messages import constants
+from datetime import datetime, timedelta
 
 
 def mentorados(request):
@@ -44,3 +45,33 @@ def mentorados(request):
     mentorado.save()
     messages.add_message(request, constants.SUCCESS, 'Mentorado cadastrado com sucesso!')
     return redirect('mentorados')
+  
+
+def reunioes(request):
+  if request.method == 'GET':
+    return render(request, 'reunioes.html')
+  elif request.method == 'POST':
+    data = request.POST.get('data')
+    data = datetime.strptime(data, '%Y-%m-%dT%H:%M')
+
+    disponibilidades = DisponibilidadedeHorarios.objects.filter(mentor=request.user).filter(
+      data_inicial__gte=(data - timedelta(minutes=50)), # __ gte  maior ou igual 
+      data_inicial__lte=(data + timedelta(minutes=50)), # __lte menor ou igual
+    )
+
+    if disponibilidades.exists():
+      messages.add_message(request, constants.ERROR, 'Você já possui uma reunião em aberto!')
+      return redirect('reunioes')
+    
+    if data < datetime.now():
+      messages.add_message(request, constants.ERROR, 'A data selecionada é menor que a data de hoje!')
+      return redirect('reunioes')
+
+    disponibilidades = DisponibilidadedeHorarios(
+      data_inicial=data,
+      mentor=request.user
+    )
+
+    disponibilidades.save()
+    messages.add_message(request, constants.SUCCESS, 'Agendamento realizado com sucesso!')
+    return redirect('reunioes')
