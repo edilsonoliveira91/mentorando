@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, Http404
-from .models import Mentorados, Navigators, DisponibilidadedeHorarios
+from .models import Mentorados, Navigators, DisponibilidadedeHorarios, Reuniao
 from django.contrib import messages
 from django.contrib.messages import constants
 from datetime import datetime, timedelta
+from .auth import valida_token
 
 
 def mentorados(request):
@@ -83,7 +84,7 @@ def auth(request):
   elif request.method == 'POST':
     token = request.POST.get('token')
 
-    if not Mentorados.objects.filter(token=token).exist():
+    if not Mentorados.objects.filter(token=token).exists():
       messages.add_message(request, constants.ERROR, 'Token inválido!')
       return redirect('auth_mentorado')
     
@@ -91,3 +92,44 @@ def auth(request):
     response.set_cookie('auth_token', token, max_age=3600)
 
     return response
+  
+
+def escolher_dia(request):
+  # Essa parte valida se o usuario realmente tem um token valido!
+  if not valida_token(request.COOKIES.get('auth_token')):
+    return redirect('auth_mentorado')
+  if request.method == 'GET':
+    mentorado = valida_token(request.COOKIES.get('auth_token'))
+
+    disponibilidades = DisponibilidadedeHorarios.objects.filter(
+      data_inicial__gte=datetime.now(),
+      agendado=False,
+      mentor=mentorado.user
+    ).values_list('data_inicial', flat=True)
+
+    datas = []
+    for i in disponibilidades:
+      datas.append(i.date().strftime('%d-%m-%Y'))
+
+    # Tornar o dia do mes e a semana dinamico.. Nao quecer de tentar.
+
+    return render(request, 'escolher_dia.html',{'horarios': list(set(datas))})
+
+
+def agendar_reuniao(request):
+  # Essa parte valida se o usuario realmente tem um token valido!
+  if not valida_token(request.COOKIES.get('auth_token')):
+    return redirect('auth_mentorado')
+  if request.method == 'GET':
+    data = request.GET.get('data')
+    data = datetime.strptime(data, '%d-%m-%Y')
+    print(data)
+    mentorado = valida_token(request.COOKIES.get('auth_token'))
+    horarios = DisponibilidadedeHorarios.objects.filter(
+      data_inicial__gte=data, # maior ou igual
+      data_inicial__lt=data + timedelta(days=1), # menor
+      agendado=False,
+      mentor=mentorado.user
+    )
+
+    return render(request, 'agendar_reuniao.html',{'horarios': horarios, 'tags': Reuniao.tag_choices})
