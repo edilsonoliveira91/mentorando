@@ -50,14 +50,25 @@ class DisponibilidadedeHorarios(models.Model):
 
 
 class Reuniao(models.Model):
-    tag_choices = (
-        ('G', 'Gestão'),
-        ('M', 'Marketing'),
-        ('RH', 'Gestão de pessoas'),
-        ('I', 'Impostos')
-    )
+  tag_choices = (
+      ('G', 'Gestão'),
+      ('M', 'Marketing'),
+      ('RH', 'Gestão de pessoas'),
+      ('I', 'Impostos')
+  )
 
-    data = models.ForeignKey(DisponibilidadedeHorarios, on_delete=models.CASCADE)
-    mentorado = models.ForeignKey(Mentorados, on_delete=models.CASCADE)
-    tag = models.CharField(max_length=2, choices=tag_choices)
-    descricao = models.TextField()
+  data = models.ForeignKey(DisponibilidadedeHorarios, on_delete=models.CASCADE)
+  mentorado = models.ForeignKey(Mentorados, on_delete=models.CASCADE)
+  tag = models.CharField(max_length=2, choices=tag_choices)
+  descricao = models.TextField()
+
+
+class Tarefa(models.Model):
+  mentorado = models.ForeignKey(Mentorados, on_delete=models.DO_NOTHING)
+  tarefa = models.CharField(max_length=255)
+  realizada = models.BooleanField(default=False)
+
+
+class Upload(models.Model):
+  mentorado = models.ForeignKey(Mentorados, on_delete=models.DO_NOTHING)
+  video = models.FileField(upload_to='video')

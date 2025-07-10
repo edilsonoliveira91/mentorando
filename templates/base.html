@@ -30,10 +30,7 @@
               </button>
             </div>
             <div class="hidden lg:flex lg:gap-x-12">
-              <a href="#" class="text-sm/6 font-semibold text-gray-100">Mentorados</a>
-              <a href="#" class="text-sm/6 font-semibold text-gray-100">Tarefas</a>
-              <a href="#" class="text-sm/6 font-semibold text-gray-100">Progressos</a>
-              <a href="#" class="text-sm/6 font-semibold text-gray-100">Navigators</a>
+              <a href="{% url 'mentorados' %}" class="text-sm/6 font-semibold text-gray-100">Mentorados</a>
               <a href="{% url 'logout' %}" class="text-sm/6 font-semibold text-gray-100">Sair({{request.user}})</a>
             </div>
             <div class="hidden lg:flex lg:flex-1 lg:justify-end">  
